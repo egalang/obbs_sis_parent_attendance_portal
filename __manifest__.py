@@ -18,6 +18,11 @@ Adds a parent-facing attendance portal on top of obbs_sis.
         "security/record_rules.xml",
         "views/portal_attendance_templates.xml",
     ],
+    'assets': {
+        'web.assets_frontend': [
+            'obbs_sis_parent_attendance_portal/static/src/css/portal_attendance.css',
+        ],
+    },
     "installable": True,
     "application": False,
 }
