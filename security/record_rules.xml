@@ -1,0 +1,14 @@
+<odoo>
+    <data noupdate="0">
+        <record id="rule_sis_attendance_log_portal_own" model="ir.rule">
+            <field name="name">Portal: Own Attendance Logs Only</field>
+            <field name="model_id" ref="obbs_sis.model_sis_student_attendance_log" />
+            <field name="groups" eval="[(4, ref('base.group_portal'))]" />
+            <field name="domain_force">[('enrollment_id.partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="0" />
+            <field name="perm_create" eval="0" />
+            <field name="perm_unlink" eval="0" />
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sis_attendance_log_portal,access.sis.attendance.log.portal,obbs_sis.model_sis_student_attendance_log,base.group_portal,1,0,0,0

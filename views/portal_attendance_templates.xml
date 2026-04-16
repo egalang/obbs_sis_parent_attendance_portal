@@ -1,0 +1,159 @@
+<odoo>
+    <data>
+        <template id="portal_my_home_attendance"
+            inherit_id="portal.portal_my_home"
+            name="Portal Home: Attendance"
+            priority="45">
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+                <div id="portal_attendance_category">
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/web/static/img/icons/clock.svg'" />
+                        <t t-set="title">Attendance Updates</t>
+                        <t t-set="url" t-value="'/my/attendance'" />
+                        <t t-set="text">
+                            View student attendance logs and recent updates.
+                            <t t-if="attendance_unseen_count">
+                                <span class="badge rounded-pill bg-danger ms-1" t-esc="attendance_unseen_count" />
+                            </t>
+                        </t>
+                        <t t-set="placeholder_count" t-value="'attendance_count'" />
+                    </t>
+                </div>
+            </xpath>
+        </template>
+
+        <template id="portal_breadcrumbs_attendance" inherit_id="portal.portal_breadcrumbs">
+            <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+                <li t-if="page_name == 'attendance'" class="breadcrumb-item active">
+                    <span>My Attendance</span>
+                </li>
+
+                <li t-if="page_name == 'attendance_detail'" class="breadcrumb-item">
+                    <a href="/my/attendance">My Attendance</a>
+                </li>
+                <li t-if="page_name == 'attendance_detail'" class="breadcrumb-item active">
+                    <span t-esc="attendance_log.enrollment_id.full_name" />
+                </li>
+            </xpath>
+        </template>
+
+        <template id="portal_attendance_list" name="My Attendance Logs">
+            <t t-call="portal.portal_layout">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0">Attendance Updates</h3>
+                    <div class="btn-group" role="group" aria-label="Attendance Filters">
+                        <a t-foreach="searchbar_filters.items()" t-as="flt"
+                           t-attf-href="/my/attendance?filterby={{ flt[0] }}"
+                           t-att-class="'btn btn-sm ' + ('btn-primary' if filterby == flt[0] else 'btn-outline-primary')">
+                            <t t-esc="flt[1]['label']" />
+                        </a>
+                    </div>
+                </div>
+
+                <t t-if="attendance_logs">
+                    <t t-call="portal.portal_table">
+                        <thead>
+                            <tr class="active">
+                                <th>Student</th>
+                                <th>School Year</th>
+                                <th>Section</th>
+                                <th>Log Type</th>
+                                <th>Date/Time</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <t t-foreach="attendance_logs" t-as="log">
+                            <tr>
+                                <td>
+                                    <span t-esc="log.enrollment_id.full_name" />
+                                </td>
+                                <td>
+                                    <span t-esc="log.enrollment_id.school_year_id.display_name or ''" />
+                                </td>
+                                <td>
+                                    <span t-esc="log.enrollment_id.section_id.display_name or ''" />
+                                </td>
+                                <td>
+                                    <span t-esc="dict(log._fields['log_type'].selection).get(log.log_type, log.log_type)" />
+                                </td>
+                                <td>
+                                    <span t-field="log.attendance_datetime" />
+                                </td>
+                                <td>
+                                    <span t-if="not log.is_parent_seen" class="badge bg-danger">New</span>
+                                    <span t-if="log.is_parent_seen" class="badge bg-success">Seen</span>
+                                </td>
+                                <td class="text-end">
+                                    <a t-attf-href="/my/attendance/{{ log.id }}" class="btn btn-sm btn-primary">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </t>
+                <t t-if="not attendance_logs">
+                    <div class="alert alert-info my-4">
+                        No attendance logs found for the selected filter.
+                    </div>
+                </t>
+            </t>
+        </template>
+
+        <template id="portal_attendance_page" name="Attendance Log Details">
+            <t t-call="portal.portal_layout">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">
+                            <t t-esc="attendance_log.enrollment_id.full_name" />
+                        </h2>
+                        <a href="/my/attendance" class="btn btn-secondary">Back to Attendance</a>
+                    </div>
+
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Attendance Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <strong>Student:</strong>
+                                    <span class="ms-2" t-esc="attendance_log.enrollment_id.full_name" />
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>School Year:</strong>
+                                    <span class="ms-2" t-esc="attendance_log.enrollment_id.school_year_id.display_name or ''" />
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Grade Level:</strong>
+                                    <span class="ms-2" t-esc="attendance_log.enrollment_id.grade_level_id.display_name or ''" />
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Section:</strong>
+                                    <span class="ms-2" t-esc="attendance_log.enrollment_id.section_id.display_name or ''" />
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Log Type:</strong>
+                                    <span class="ms-2" t-esc="dict(attendance_log._fields['log_type'].selection).get(attendance_log.log_type, attendance_log.log_type)" />
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Date/Time:</strong>
+                                    <span class="ms-2" t-field="attendance_log.attendance_datetime" />
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Status:</strong>
+                                    <span class="ms-2 badge bg-success">Seen</span>
+                                </li>
+                                <li class="list-group-item" t-if="attendance_log.parent_seen_datetime">
+                                    <strong>Viewed On:</strong>
+                                    <span class="ms-2" t-field="attendance_log.parent_seen_datetime" />
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>
